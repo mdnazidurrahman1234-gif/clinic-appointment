@@ -1,13 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-getDatabase,
-ref,
-push
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  remove
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+// Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyD6wKkpZ9KmRi1_nPmBrvmAk-v5YSLRczo",
+  apiKey: "YOUR_API_KEY",
   authDomain: "clinic-appointment-72505.firebaseapp.com",
   databaseURL: "https://clinic-appointment-72505-default-rtdb.firebaseio.com",
   projectId: "clinic-appointment-72505",
@@ -16,44 +19,180 @@ const firebaseConfig = {
   appId: "1:969154219142:web:5f40ff23ae2d7cafb95507"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
 const db = getDatabase(app);
 
-document.getElementById("appointmentForm").addEventListener("submit",function(e){
 
-e.preventDefault();
+// =============================
+// BOOK APPOINTMENT
+// =============================
 
-const appointment={
+const form = document.getElementById("appointmentForm");
 
-name:document.getElementById("name").value,
+if (form) {
 
-phone:document.getElementById("phone").value,
+    form.addEventListener("submit", function (e) {
 
-doctor:document.getElementById("doctor").value,
+        e.preventDefault();
 
-date:document.getElementById("date").value,
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const doctor = document.getElementById("doctor").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
 
-time:document.getElementById("time").value,
+        push(ref(db, "Appointments"), {
 
-createdAt:new Date().toISOString()
+            name,
+            phone,
+            doctor,
+            date,
+            time
+
+        })
+
+        .then(() => {
+
+            alert("Appointment Saved Successfully!");
+
+            form.reset();
+
+        })
+
+        .catch((error) => {
+
+            alert(error.message);
+
+        });
+
+    });
+
+}
+
+
+// =============================
+// SHOW APPOINTMENTS
+// =============================
+
+const table = document.getElementById("appointmentTable");
+
+if (table) {
+
+    const appointmentRef = ref(db, "Appointments");
+
+    onValue(appointmentRef, (snapshot) => {
+
+        table.innerHTML = "";
+
+        if (!snapshot.exists()) {
+
+            table.innerHTML = `
+            <tr>
+                <td colspan="6">No Appointment Found</td>
+            </tr>
+            `;
+
+            return;
+        }
+
+        snapshot.forEach((childSnapshot) => {
+
+            const key = childSnapshot.key;
+            const data = childSnapshot.val();
+
+            table.innerHTML += `
+
+            <tr>
+
+                <td>${data.name}</td>
+
+                <td>${data.phone}</td>
+
+                <td>${data.doctor}</td>
+
+                <td>${data.date}</td>
+
+                <td>${data.time}</td>
+
+                <td>
+
+                    <button class="delete"
+                    onclick="deleteAppointment('${key}')">
+
+                    Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `;
+
+        });
+
+    });
+
+}
+
+
+
+// =============================
+// DELETE
+// =============================
+
+window.deleteAppointment = function (key) {
+
+    if (confirm("Delete this appointment?")) {
+
+        remove(ref(db, "Appointments/" + key))
+
+        .then(() => {
+
+            alert("Appointment Deleted!");
+
+        })
+
+        .catch((error) => {
+
+            alert(error.message);
+
+        });
+
+    }
 
 };
 
-push(ref(db,"appointments"),appointment)
 
-.then(()=>{
 
-alert("Appointment Saved Successfully");
+// =============================
+// SEARCH
+// =============================
 
-document.getElementById("appointmentForm").reset();
+window.searchAppointment = function () {
 
-})
+    let input = document
+        .getElementById("search")
+        .value
+        .toLowerCase();
 
-.catch((error)=>{
+    let rows = document.querySelectorAll("#appointmentTable tr");
 
-alert(error.message);
+    rows.forEach((row) => {
 
-});
+        let text = row.cells[0].innerText.toLowerCase();
 
-});
+        if (text.includes(input)) {
+
+            row.style.display = "";
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+};
