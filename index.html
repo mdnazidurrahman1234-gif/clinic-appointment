@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Clinic Appointment</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Book Appointment</h2>
+
+<form id="appointmentForm">
+
+<label>Patient Name</label>
+<input
+type="text"
+id="name"
+placeholder="Enter Patient Name"
+required>
+
+<label>Phone Number</label>
+<input
+type="text"
+id="phone"
+placeholder="01XXXXXXXXX"
+required>
+
+<label>Doctor</label>
+
+<select id="doctor">
+
+<option>Dr. Ahmed</option>
+
+<option>Dr. Hasan</option>
+
+<option>Dr. Kabir</option>
+
+</select>
+
+<label>Date</label>
+
+<input
+type="date"
+id="date"
+required>
+
+<label>Time</label>
+
+<input
+type="time"
+id="time"
+required>
+
+<br><br>
+
+<button type="submit">
+
+Book Appointment
+
+</button>
+
+</form>
+
+</div>
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
