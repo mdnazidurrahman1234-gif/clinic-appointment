@@ -1,198 +1,227 @@
+// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-  getDatabase,
-  ref,
-  push,
-  onValue,
-  remove
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { 
+    getFirestore,
+    collection,
+    getDocs,
+    deleteDoc,
+    doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase Config
+
+// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "clinic-appointment-72505.firebaseapp.com",
-  databaseURL: "https://clinic-appointment-72505-default-rtdb.firebaseio.com",
-  projectId: "clinic-appointment-72505",
-  storageBucket: "clinic-appointment-72505.firebasestorage.app",
-  messagingSenderId: "969154219142",
-  appId: "1:969154219142:web:5f40ff23ae2d7cafb95507"
+
+    apiKey: "YOUR_API_KEY",
+
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+    projectId: "YOUR_PROJECT_ID",
+
+    storageBucket: "YOUR_PROJECT.appspot.com",
+
+    messagingSenderId: "YOUR_SENDER_ID",
+
+    appId: "YOUR_APP_ID"
+
 };
 
+
 // Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+
+const db = getFirestore(app);
 
 
-// =============================
-// BOOK APPOINTMENT
-// =============================
 
-const form = document.getElementById("appointmentForm");
+let appointmentData = [];
 
-if (form) {
 
-    form.addEventListener("submit", function (e) {
 
-        e.preventDefault();
+// Load appointments
 
-        const name = document.getElementById("name").value;
-        const phone = document.getElementById("phone").value;
-        const doctor = document.getElementById("doctor").value;
-        const date = document.getElementById("date").value;
-        const time = document.getElementById("time").value;
+async function loadAppointments(){
 
-        push(ref(db, "Appointments"), {
 
-            name,
-            phone,
-            doctor,
-            date,
-            time
+    const table = document.getElementById("appointmentTable");
 
-        })
+    table.innerHTML="";
 
-        .then(() => {
 
-            alert("Appointment Saved Successfully!");
+    const querySnapshot = await getDocs(
+        collection(db,"appointments")
+    );
 
-            form.reset();
 
-        })
 
-        .catch((error) => {
+    appointmentData=[];
 
-            alert(error.message);
+
+    querySnapshot.forEach((doc)=>{
+
+
+        let data = doc.data();
+
+
+        appointmentData.push({
+
+            id:doc.id,
+
+            ...data
 
         });
 
-    });
-
-}
-
-
-// =============================
-// SHOW APPOINTMENTS
-// =============================
-
-const table = document.getElementById("appointmentTable");
-
-if (table) {
-
-    const appointmentRef = ref(db, "Appointments");
-
-    onValue(appointmentRef, (snapshot) => {
-
-        table.innerHTML = "";
-
-        if (!snapshot.exists()) {
-
-            table.innerHTML = `
-            <tr>
-                <td colspan="6">No Appointment Found</td>
-            </tr>
-            `;
-
-            return;
-        }
-
-        snapshot.forEach((childSnapshot) => {
-
-            const key = childSnapshot.key;
-            const data = childSnapshot.val();
-
-            table.innerHTML += `
-
-            <tr>
-
-                <td>${data.name}</td>
-
-                <td>${data.phone}</td>
-
-                <td>${data.doctor}</td>
-
-                <td>${data.date}</td>
-
-                <td>${data.time}</td>
-
-                <td>
-
-                    <button class="delete"
-                    onclick="deleteAppointment('${key}')">
-
-                    Delete
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        });
 
     });
+
+
+
+    displayAppointments(appointmentData);
+
 
 }
 
 
 
-// =============================
-// DELETE
-// =============================
 
-window.deleteAppointment = function (key) {
+// Show table data
 
-    if (confirm("Delete this appointment?")) {
+function displayAppointments(data){
 
-        remove(ref(db, "Appointments/" + key))
 
-        .then(() => {
+    const table=document.getElementById("appointmentTable");
 
-            alert("Appointment Deleted!");
 
-        })
+    table.innerHTML="";
 
-        .catch((error) => {
 
-            alert(error.message);
 
-        });
+    data.forEach(item=>{
+
+
+        let row=document.createElement("tr");
+
+
+
+        row.innerHTML=`
+
+        <td>${item.patient || ""}</td>
+
+        <td>${item.phone || ""}</td>
+
+        <td>${item.doctor || ""}</td>
+
+        <td>${item.date || ""}</td>
+
+        <td>${item.time || ""}</td>
+
+
+        <td>
+
+        <button class="delete"
+        onclick="deleteAppointment('${item.id}')">
+
+        Delete
+
+        </button>
+
+        </td>
+
+
+        `;
+
+
+
+        table.appendChild(row);
+
+
+
+    });
+
+
+}
+
+
+
+
+
+// Search by name or phone
+
+window.searchAppointment=function(){
+
+
+    let value=document
+    .getElementById("search")
+    .value
+    .toLowerCase()
+    .trim();
+
+
+
+    let result=appointmentData.filter(item=>{
+
+
+        let name=(item.patient || "")
+        .toLowerCase();
+
+
+
+        let phone=(item.phone || "")
+        .toLowerCase();
+
+
+
+        return (
+
+            name.includes(value)
+
+            ||
+
+            phone.includes(value)
+
+        );
+
+
+    });
+
+
+
+    displayAppointments(result);
+
+
+}
+
+
+
+
+
+// Delete appointment
+
+window.deleteAppointment=async function(id){
+
+
+    if(confirm("Delete this appointment?")){
+
+
+        await deleteDoc(
+            doc(db,"appointments",id)
+        );
+
+
+        loadAppointments();
+
 
     }
 
-};
+
+}
 
 
 
-// =============================
-// SEARCH
-// =============================
 
-window.searchAppointment = function () {
 
-    let input = document
-        .getElementById("search")
-        .value
-        .toLowerCase();
+// Start
 
-    let rows = document.querySelectorAll("#appointmentTable tr");
-
-    rows.forEach((row) => {
-
-        let text = row.cells[0].innerText.toLowerCase();
-
-        if (text.includes(input)) {
-
-            row.style.display = "";
-
-        } else {
-
-            row.style.display = "none";
-
-        }
-
-    });
-
-};
+loadAppointments();

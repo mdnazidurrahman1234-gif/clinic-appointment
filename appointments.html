@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Appointment List</title>
 
 <style>
+
 body{
     font-family:Arial,sans-serif;
     background:#f2f2f2;
@@ -32,6 +35,7 @@ h2{
     padding:10px;
     margin-bottom:15px;
     font-size:16px;
+    box-sizing:border-box;
 }
 
 table{
@@ -75,48 +79,147 @@ button{
     padding:10px 15px;
     border-radius:5px;
 }
+
 </style>
 
 </head>
+
+
 <body>
+
 
 <div class="container">
 
-<a href="index.html" class="back">← Book Appointment</a>
 
-<h2>Appointment List</h2>
+<a href="index.html" class="back">
+← Book Appointment
+</a>
+
+
+<h2>
+Appointment List
+</h2>
+
 
 <input
+
 type="text"
+
 id="search"
+
 class="search"
-placeholder="Search by Patient Name..."
-onkeyup="searchAppointment()">
+
+placeholder="Search by Patient Name or Phone Number..."
+
+onkeyup="searchAppointment()"
+
+
+>
+
+
 
 <table>
 
+
 <thead>
 
+
 <tr>
+
 <th>Patient</th>
+
 <th>Phone</th>
+
 <th>Doctor</th>
+
 <th>Date</th>
+
 <th>Time</th>
+
 <th>Actions</th>
+
 </tr>
+
 
 </thead>
 
+
 <tbody id="appointmentTable">
+
 
 </tbody>
 
+
 </table>
+
 
 </div>
 
+
+
 <script type="module" src="script.js"></script>
+
+
+
+<script>
+
+
+window.searchAppointment = function(){
+
+
+    let value = document
+    .getElementById("search")
+    .value
+    .toLowerCase()
+    .trim();
+
+
+
+    let rows = document
+    .querySelectorAll("#appointmentTable tr");
+
+
+
+    rows.forEach(row=>{
+
+
+        let patient = row.cells[0]
+        ? row.cells[0].innerText.toLowerCase()
+        : "";
+
+
+
+        let phone = row.cells[1]
+        ? row.cells[1].innerText.toLowerCase()
+        : "";
+
+
+
+        if(
+            patient.includes(value) ||
+            phone.includes(value)
+        ){
+
+            row.style.display="";
+
+        }
+
+        else{
+
+            row.style.display="none";
+
+        }
+
+
+    });
+
+
+}
+
+
+</script>
+
+
 
 </body>
 </html>
