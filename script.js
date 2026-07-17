@@ -1,227 +1,198 @@
-// Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import { 
-    getFirestore,
-    collection,
-    getDocs,
-    deleteDoc,
-    doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  remove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-
-// Firebase Configuration
+// Firebase Config
 const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "clinic-appointment-72505.firebaseapp.com",
+  databaseURL: "https://clinic-appointment-72505-default-rtdb.firebaseio.com",
+  projectId: "clinic-appointment-72505",
+  storageBucket: "clinic-appointment-72505.firebasestorage.app",
+  messagingSenderId: "969154219142",
+  appId: "1:969154219142:web:5f40ff23ae2d7cafb95507"
+};
 
-    apiKey: "YOUR_API_KEY",
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
 
-    projectId: "YOUR_PROJECT_ID",
+// =============================
+// BOOK APPOINTMENT
+// =============================
 
-    storageBucket: "YOUR_PROJECT.appspot.com",
+const form = document.getElementById("appointmentForm");
 
-    messagingSenderId: "YOUR_SENDER_ID",
+if (form) {
 
-    appId: "YOUR_APP_ID"
+    form.addEventListener("submit", function (e) {
+
+        e.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const doctor = document.getElementById("doctor").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+
+        push(ref(db, "Appointments"), {
+
+            name,
+            phone,
+            doctor,
+            date,
+            time
+
+        })
+
+        .then(() => {
+
+            alert("Appointment Saved Successfully!");
+
+            form.reset();
+
+        })
+
+        .catch((error) => {
+
+            alert(error.message);
+
+        });
+
+    });
+
+}
+
+
+// =============================
+// SHOW APPOINTMENTS
+// =============================
+
+const table = document.getElementById("appointmentTable");
+
+if (table) {
+
+    const appointmentRef = ref(db, "Appointments");
+
+    onValue(appointmentRef, (snapshot) => {
+
+        table.innerHTML = "";
+
+        if (!snapshot.exists()) {
+
+            table.innerHTML = `
+            <tr>
+                <td colspan="6">No Appointment Found</td>
+            </tr>
+            `;
+
+            return;
+        }
+
+        snapshot.forEach((childSnapshot) => {
+
+            const key = childSnapshot.key;
+            const data = childSnapshot.val();
+
+            table.innerHTML += `
+
+            <tr>
+
+                <td>${data.name}</td>
+
+                <td>${data.phone}</td>
+
+                <td>${data.doctor}</td>
+
+                <td>${data.date}</td>
+
+                <td>${data.time}</td>
+
+                <td>
+
+                    <button class="delete"
+                    onclick="deleteAppointment('${key}')">
+
+                    Delete
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+            `;
+
+        });
+
+    });
+
+}
+
+
+
+// =============================
+// DELETE
+// =============================
+
+window.deleteAppointment = function (key) {
+
+    if (confirm("Delete this appointment?")) {
+
+        remove(ref(db, "Appointments/" + key))
+
+        .then(() => {
+
+            alert("Appointment Deleted!");
+
+        })
+
+        .catch((error) => {
+
+            alert(error.message);
+
+        });
+
+    }
 
 };
 
 
-// Initialize Firebase
 
-const app = initializeApp(firebaseConfig);
+// =============================
+// SEARCH
+// =============================
 
-const db = getFirestore(app);
+window.searchAppointment = function () {
 
-
-
-let appointmentData = [];
-
-
-
-// Load appointments
-
-async function loadAppointments(){
-
-
-    const table = document.getElementById("appointmentTable");
-
-    table.innerHTML="";
-
-
-    const querySnapshot = await getDocs(
-        collection(db,"appointments")
-    );
-
-
-
-    appointmentData=[];
-
-
-    querySnapshot.forEach((doc)=>{
-
-
-        let data = doc.data();
-
-
-        appointmentData.push({
-
-            id:doc.id,
-
-            ...data
-
-        });
-
-
-    });
-
-
-
-    displayAppointments(appointmentData);
-
-
-}
-
-
-
-
-// Show table data
-
-function displayAppointments(data){
-
-
-    const table=document.getElementById("appointmentTable");
-
-
-    table.innerHTML="";
-
-
-
-    data.forEach(item=>{
-
-
-        let row=document.createElement("tr");
-
-
-
-        row.innerHTML=`
-
-        <td>${item.patient || ""}</td>
-
-        <td>${item.phone || ""}</td>
-
-        <td>${item.doctor || ""}</td>
-
-        <td>${item.date || ""}</td>
-
-        <td>${item.time || ""}</td>
-
-
-        <td>
-
-        <button class="delete"
-        onclick="deleteAppointment('${item.id}')">
-
-        Delete
-
-        </button>
-
-        </td>
-
-
-        `;
-
-
-
-        table.appendChild(row);
-
-
-
-    });
-
-
-}
-
-
-
-
-
-// Search by name or phone
-
-window.searchAppointment=function(){
-
-
-    let value=document
-    .getElementById("search")
-    .value
-    .toLowerCase()
-    .trim();
-
-
-
-    let result=appointmentData.filter(item=>{
-
-
-        let name=(item.patient || "")
+    let input = document
+        .getElementById("search")
+        .value
         .toLowerCase();
 
+    let rows = document.querySelectorAll("#appointmentTable tr");
 
+    rows.forEach((row) => {
 
-        let phone=(item.phone || "")
-        .toLowerCase();
+        let text = row.cells[0].innerText.toLowerCase();
 
+        if (text.includes(input)) {
 
+            row.style.display = "";
 
-        return (
+        } else {
 
-            name.includes(value)
+            row.style.display = "none";
 
-            ||
-
-            phone.includes(value)
-
-        );
-
+        }
 
     });
 
-
-
-    displayAppointments(result);
-
-
-}
-
-
-
-
-
-// Delete appointment
-
-window.deleteAppointment=async function(id){
-
-
-    if(confirm("Delete this appointment?")){
-
-
-        await deleteDoc(
-            doc(db,"appointments",id)
-        );
-
-
-        loadAppointments();
-
-
-    }
-
-
-}
-
-
-
-
-
-// Start
-
-loadAppointments();
+};
