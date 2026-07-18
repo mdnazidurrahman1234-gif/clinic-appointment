@@ -17,57 +17,37 @@ body{
 }
 
 .container{
-    max-width:1000px;
+    max-width:1100px;
     margin:auto;
-    background:white;
+    background:#fff;
     padding:20px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,.2);
 }
 
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
 h2{
-    text-align:center;
     color:#0077cc;
+    margin:0;
 }
 
-.search{
-    width:100%;
-    padding:10px;
-    margin-bottom:15px;
-    font-size:16px;
-    box-sizing:border-box;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-}
-
-th{
-    background:#0077cc;
-    color:white;
-}
-
-button{
-    border:none;
-    padding:6px 12px;
-    cursor:pointer;
-    border-radius:5px;
-    color:white;
-}
-
-.edit{
-    background:orange;
-}
-
-.delete{
+.logout{
     background:red;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.logout:hover{
+    background:#c40000;
 }
 
 .back{
@@ -80,49 +60,76 @@ button{
     border-radius:5px;
 }
 
+.search{
+    width:100%;
+    padding:10px;
+    margin-bottom:20px;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#0077cc;
+    color:white;
+}
+
+.delete{
+    background:red;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.delete:hover{
+    background:#c40000;
+}
+
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="container">
 
+<a href="index.html" class="back">← Book Appointment</a>
 
-<a href="index.html" class="back">
-← Book Appointment
-</a>
+<div class="top">
 
+<h2>Appointment List</h2>
 
-<h2>
-Appointment List
-</h2>
+<button class="logout" onclick="logout()">
 
+Logout
+
+</button>
+
+</div>
 
 <input
-
 type="text"
-
 id="search"
-
 class="search"
-
-placeholder="Search by Patient Name or Phone Number..."
-
-onkeyup="searchAppointment()"
-
-
->
-
-
+placeholder="Search Patient..."
+onkeyup="searchAppointment()">
 
 <table>
 
-
 <thead>
-
 
 <tr>
 
@@ -136,90 +143,24 @@ onkeyup="searchAppointment()"
 
 <th>Time</th>
 
-<th>Actions</th>
+<th>Action</th>
 
 </tr>
 
-
 </thead>
-
 
 <tbody id="appointmentTable">
 
-
 </tbody>
-
 
 </table>
 
-
 </div>
 
-
+<script type="module" src="auth.js"></script>
 
 <script type="module" src="script.js"></script>
 
-
-
-<script>
-
-
-window.searchAppointment = function(){
-
-
-    let value = document
-    .getElementById("search")
-    .value
-    .toLowerCase()
-    .trim();
-
-
-
-    let rows = document
-    .querySelectorAll("#appointmentTable tr");
-
-
-
-    rows.forEach(row=>{
-
-
-        let patient = row.cells[0]
-        ? row.cells[0].innerText.toLowerCase()
-        : "";
-
-
-
-        let phone = row.cells[1]
-        ? row.cells[1].innerText.toLowerCase()
-        : "";
-
-
-
-        if(
-            patient.includes(value) ||
-            phone.includes(value)
-        ){
-
-            row.style.display="";
-
-        }
-
-        else{
-
-            row.style.display="none";
-
-        }
-
-
-    });
-
-
-}
-
-
-</script>
-
-
-
 </body>
+
 </html>
