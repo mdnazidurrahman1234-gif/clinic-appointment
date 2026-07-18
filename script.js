@@ -1,55 +1,36 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
 import {
-  getDatabase,
-  ref,
-  push,
-  onValue,
-  remove
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "clinic-appointment-72505.firebaseapp.com",
-  databaseURL: "https://clinic-appointment-72505-default-rtdb.firebaseio.com",
-  projectId: "clinic-appointment-72505",
-  storageBucket: "clinic-appointment-72505.firebasestorage.app",
-  messagingSenderId: "969154219142",
-  appId: "1:969154219142:web:5f40ff23ae2d7cafb95507"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    db,
+    ref,
+    push,
+    onValue,
+    remove
+} from "./firebase.js";
 
 
-// =============================
+// ==========================
 // BOOK APPOINTMENT
-// =============================
+// ==========================
 
 const form = document.getElementById("appointmentForm");
 
 if (form) {
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", (e) => {
 
         e.preventDefault();
 
-        const name = document.getElementById("name").value;
-        const phone = document.getElementById("phone").value;
+        const name = document.getElementById("name").value.trim();
+        const phone = document.getElementById("phone").value.trim();
         const doctor = document.getElementById("doctor").value;
         const date = document.getElementById("date").value;
         const time = document.getElementById("time").value;
 
         push(ref(db, "Appointments"), {
-
             name,
             phone,
             doctor,
             date,
             time
-
         })
 
         .then(() => {
@@ -71,35 +52,34 @@ if (form) {
 }
 
 
-// =============================
+
+// ==========================
 // SHOW APPOINTMENTS
-// =============================
+// ==========================
 
 const table = document.getElementById("appointmentTable");
 
 if (table) {
 
-    const appointmentRef = ref(db, "Appointments");
-
-    onValue(appointmentRef, (snapshot) => {
+    onValue(ref(db, "Appointments"), (snapshot) => {
 
         table.innerHTML = "";
 
         if (!snapshot.exists()) {
 
-            table.innerHTML = `
-            <tr>
+            table.innerHTML =
+            `<tr>
                 <td colspan="6">No Appointment Found</td>
-            </tr>
-            `;
+            </tr>`;
 
             return;
+
         }
 
-        snapshot.forEach((childSnapshot) => {
+        snapshot.forEach((child) => {
 
-            const key = childSnapshot.key;
-            const data = childSnapshot.val();
+            const data = child.val();
+            const key = child.key;
 
             table.innerHTML += `
 
@@ -117,7 +97,8 @@ if (table) {
 
                 <td>
 
-                    <button class="delete"
+                    <button
+                    class="delete"
                     onclick="deleteAppointment('${key}')">
 
                     Delete
@@ -138,27 +119,15 @@ if (table) {
 
 
 
-// =============================
+// ==========================
 // DELETE
-// =============================
+// ==========================
 
 window.deleteAppointment = function (key) {
 
-    if (confirm("Delete this appointment?")) {
+    if (confirm("Delete this Appointment?")) {
 
-        remove(ref(db, "Appointments/" + key))
-
-        .then(() => {
-
-            alert("Appointment Deleted!");
-
-        })
-
-        .catch((error) => {
-
-            alert(error.message);
-
-        });
+        remove(ref(db, "Appointments/" + key));
 
     }
 
@@ -166,32 +135,26 @@ window.deleteAppointment = function (key) {
 
 
 
-// =============================
+
+// ==========================
 // SEARCH
-// =============================
+// ==========================
 
 window.searchAppointment = function () {
 
-    let input = document
-        .getElementById("search")
-        .value
-        .toLowerCase();
+    const input =
+    document.getElementById("search").value.toLowerCase();
 
-    let rows = document.querySelectorAll("#appointmentTable tr");
+    const rows =
+    document.querySelectorAll("#appointmentTable tr");
 
     rows.forEach((row) => {
 
-        let text = row.cells[0].innerText.toLowerCase();
+        const patient =
+        row.cells[0].innerText.toLowerCase();
 
-        if (text.includes(input)) {
-
-            row.style.display = "";
-
-        } else {
-
-            row.style.display = "none";
-
-        }
+        row.style.display =
+        patient.includes(input) ? "" : "none";
 
     });
 

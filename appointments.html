@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Appointment List</title>
 
 <style>
-
 body{
     font-family:Arial,sans-serif;
-    background:#f2f2f2;
+    background:#f4f4f4;
     margin:0;
     padding:20px;
 }
@@ -19,13 +16,13 @@ body{
 .container{
     max-width:1100px;
     margin:auto;
-    background:#fff;
+    background:white;
     padding:20px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,.2);
 }
 
-.top{
+.header{
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -37,33 +34,27 @@ h2{
     margin:0;
 }
 
+.back{
+    background:#0077cc;
+    color:white;
+    padding:10px 15px;
+    text-decoration:none;
+    border-radius:5px;
+}
+
 .logout{
     background:red;
     color:white;
     border:none;
-    padding:10px 20px;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-.logout:hover{
-    background:#c40000;
-}
-
-.back{
-    display:inline-block;
-    margin-bottom:15px;
-    background:#0077cc;
-    color:white;
-    text-decoration:none;
     padding:10px 15px;
     border-radius:5px;
+    cursor:pointer;
 }
 
 .search{
     width:100%;
     padding:10px;
-    margin-bottom:20px;
+    margin:20px 0;
     font-size:16px;
     border:1px solid #ccc;
     border-radius:5px;
@@ -89,15 +80,10 @@ th{
     background:red;
     color:white;
     border:none;
-    padding:8px 15px;
+    padding:8px 12px;
     border-radius:5px;
     cursor:pointer;
 }
-
-.delete:hover{
-    background:#c40000;
-}
-
 </style>
 
 </head>
@@ -106,17 +92,13 @@ th{
 
 <div class="container">
 
-<a href="index.html" class="back">← Book Appointment</a>
+<div class="header">
 
-<div class="top">
+<a href="index.html" class="back">← New Appointment</a>
 
 <h2>Appointment List</h2>
 
-<button class="logout" onclick="logout()">
-
-Logout
-
-</button>
+<button class="logout" onclick="logout()">Logout</button>
 
 </div>
 
@@ -132,19 +114,12 @@ onkeyup="searchAppointment()">
 <thead>
 
 <tr>
-
 <th>Patient</th>
-
 <th>Phone</th>
-
 <th>Doctor</th>
-
 <th>Date</th>
-
 <th>Time</th>
-
 <th>Action</th>
-
 </tr>
 
 </thead>
@@ -158,9 +133,7 @@ onkeyup="searchAppointment()">
 </div>
 
 <script type="module" src="auth.js"></script>
-
 <script type="module" src="script.js"></script>
 
 </body>
-
 </html>
